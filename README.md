@@ -1,244 +1,235 @@
-# Sigma LLM
+# Context Forge
 
-Wrapper moderno para **llama.cpp** orientado a aplicaciones C++ que necesitan integrar modelos LLM locales de forma sencilla, con soporte para persistencia de sesiones, historial de conversación y carga de contexto dinámico.
+**Persistent memory and session management for llama.cpp**
 
-## Características
+Context Forge is a lightweight C++ library built on top of llama.cpp that simplifies the development of local LLM applications by providing persistent sessions, conversation history management, context injection, and state restoration.
 
-### Wrapper de alto nivel para llama.cpp
-
-Sigma LLM encapsula gran parte de la complejidad de la API de llama.cpp en una interfaz simple basada en sesiones.
-
-En lugar de gestionar manualmente:
-
-* Modelos
-* Contextos
-* Samplers
-* Tokenización
-* Historial de mensajes
-* Plantillas de chat
-
-puedes utilizar una única clase:
-
-```cpp
-sigma::LLMSession
-```
+Instead of dealing directly with low-level llama.cpp APIs, Context Forge offers a clean session-based interface that allows developers to focus on building applications.
 
 ---
 
-### Persistencia de sesiones
+## Features
 
-Permite guardar y restaurar conversaciones completas.
+### Persistent Sessions
 
-Se almacena:
+Save and restore complete conversations, including the model's internal state.
 
-* Estado interno del modelo (KV Cache)
-* Historial de mensajes
-* Contexto de inferencia
+Context Forge preserves:
 
-Esto permite continuar una conversación sin tener que reprocesar nuevamente todo el historial.
+* Conversation history
+* KV Cache
+* Inference state
+* Context position
 
-```cpp
-session.save_state("session");
-session.load_state("session");
-```
+This allows applications to resume conversations instantly without reprocessing the entire chat history.
 
 ---
 
 ### Context Injection
 
-Permite inyectar información en el contexto del modelo sin generar una respuesta.
+Load information into the model context without generating a response.
 
-Ideal para:
+Useful for:
 
-* Manuales de usuario
-* Documentación técnica
+* Documentation
+* User manuals
+* Internal knowledge bases
 * FAQs
-* Bases de conocimiento
-* Contexto empresarial
+* Product information
+* Business data
 
-Ejemplo:
+Example:
 
 ```cpp
 session.context_injector(
-    "Sigma ERP es un sistema de gestión empresarial..."
+    "Context Forge is a C++ library for persistent LLM sessions."
 );
 ```
 
-Posteriormente:
-
-```cpp
-session.chat("¿Qué es Sigma ERP?");
-```
-
-El modelo responderá utilizando la información previamente cargada.
+The model can then answer questions using the injected information.
 
 ---
 
-### Compatibilidad con múltiples modelos
+### Simple Chat Interface
 
-Sigma LLM utiliza automáticamente la plantilla de conversación definida por cada modelo.
+Create a session and start chatting immediately.
 
-Compatible con modelos basados en:
+```cpp
+std::string response =
+    session.chat("Hello!");
+```
+
+No manual prompt formatting required.
+
+---
+
+### Automatic Chat Template Support
+
+Context Forge automatically uses the chat template embedded in the loaded model.
+
+Compatible with:
 
 * Qwen
 * Llama
 * Gemma
 * Mistral
-* Otros modelos GGUF compatibles con llama.cpp
-
-No es necesario escribir formatos especiales de prompt.
+* Other GGUF models supported by llama.cpp
 
 ---
 
-### Configuración de generación
+### Built on llama.cpp
 
-Incluye un sampler preconfigurado orientado a asistentes y aplicaciones empresariales:
+Context Forge does not replace llama.cpp.
 
-* Baja temperatura
-* Salidas más consistentes
-* Menor nivel de alucinaciones
-* Respuestas más deterministas
+Instead, it acts as a higher-level abstraction layer while keeping the performance and portability of llama.cpp.
 
 ---
 
-## Arquitectura
+## Architecture
 
 ```text
-Usuario
-   │
-   ▼
-LLMSession
-   │
-   ├── Gestión de historial
-   ├── Chat Templates
-   ├── Context Injection
-   ├── Persistencia
-   └── Generación
-          │
-          ▼
-      llama.cpp
-          │
-          ▼
-        GGUF
+Application
+      │
+      ▼
+Context Forge
+      │
+      ├── Session Management
+      ├── Conversation History
+      ├── Context Injection
+      ├── State Persistence
+      ├── Sampling
+      └── Chat Templates
+              │
+              ▼
+          llama.cpp
+              │
+              ▼
+            GGUF
 ```
 
 ---
 
-## Flujo de generación
+## How It Works
 
-### 1. Tokenización
+### 1. Tokenization
 
-El texto de entrada se convierte en tokens utilizando:
-
-```cpp
-llama_tokenize()
-```
-
-### 2. Prefill
-
-Los tokens son procesados por el modelo:
+Input text is converted into tokens.
 
 ```cpp
-llama_decode()
+llama_tokenize(...)
 ```
+
+---
+
+### 2. Context Evaluation
+
+Tokens are processed by the model.
+
+```cpp
+llama_decode(...)
+```
+
+---
 
 ### 3. Sampling
 
-Se selecciona el siguiente token:
+The next token is selected.
 
 ```cpp
-llama_sampler_sample()
-```
-
-### 4. Conversión a texto
-
-```cpp
-llama_token_to_piece()
-```
-
-### 5. Finalización
-
-La generación termina cuando se detecta:
-
-```cpp
-llama_vocab_is_eog()
+llama_sampler_sample(...)
 ```
 
 ---
 
-## Persistencia de Estado
+### 4. Text Generation
 
-Cuando se ejecuta:
+Tokens are converted back to text.
+
+```cpp
+llama_token_to_piece(...)
+```
+
+---
+
+### 5. Completion
+
+Generation stops when the model emits an end-of-generation token.
+
+---
+
+## State Persistence
+
+Context Forge can save the entire conversation state.
 
 ```cpp
 session.save_state();
 ```
 
-se generan dos archivos.
+This produces:
 
 ### state.bin
 
-Contiene:
+Contains:
 
 * KV Cache
-* Estado interno del modelo
-* Contexto de inferencia
+* Internal inference state
+* Context position
 
-Utiliza:
+Using:
 
 ```cpp
-llama_state_save_file()
+llama_state_save_file(...)
 ```
 
 ---
 
 ### messages.txt
 
-Contiene el historial completo de la conversación.
+Contains the conversation history.
 
-Ejemplo:
+Example:
 
 ```text
-user:Hola
+user:Hello
 <---MSG_END--->
 
-assistant:Hola, ¿en qué puedo ayudarte?
+assistant:Hello! How can I help you?
 <---MSG_END--->
 ```
 
 ---
 
-## Restauración
+## State Restoration
 
 ```cpp
 session.load_state();
 ```
 
-Recupera:
+Restores:
 
 * KV Cache
-* Historial
-* Longitud previa del contexto
+* Conversation history
+* Context position
 
-permitiendo continuar la conversación exactamente desde el punto donde fue guardada.
+Allowing the model to continue exactly where it left off.
 
 ---
 
-## Ejemplo básico
+## Basic Example
 
 ```cpp
-#include "sigma_llm.hpp"
+#include "context_forge.hpp"
+#include <iostream>
 
 int main() {
 
-    sigma::LLMSession llm(
+    forge::Session session(
         "models/qwen2.5-0.5b-instruct-q4.gguf"
     );
 
-    std::string respuesta =
-        llm.chat("Hola");
-
-    std::cout << respuesta << std::endl;
+    std::cout
+        << session.chat("Hello!")
+        << std::endl;
 
     return 0;
 }
@@ -246,78 +237,104 @@ int main() {
 
 ---
 
-## Caso de uso: Asistente para Sigma ERP
+## Knowledge Injection Example
 
 ```cpp
-sigma::LLMSession assistant(model);
+forge::Session assistant(
+    "models/qwen2.5-0.5b-instruct-q4.gguf"
+);
 
 assistant.context_injector(
-    manual_sigma
+    "Context Forge provides persistent sessions "
+    "for local language models."
 );
 
-assistant.load_state();
-
-assistant.chat(
-    "¿Cómo genero una factura?"
-);
-
-assistant.save_state();
+std::cout
+    << assistant.chat(
+        "What is Context Forge?"
+    )
+    << std::endl;
 ```
 
-Beneficios:
+---
 
-* Respuestas basadas en documentación propia.
-* Conversaciones persistentes.
-* Sin dependencia de servicios externos.
-* Ejecución completamente local.
+## Why Context Forge?
+
+Using llama.cpp directly often requires handling:
+
+* Model loading
+* Context management
+* Conversation formatting
+* State persistence
+* Sampling configuration
+* History tracking
+
+Context Forge packages these responsibilities into a single reusable component.
 
 ---
 
-## Dependencias
+## Current Features
 
-* C++17 o superior
+Implemented:
+
+* GGUF model loading
+* Session-based chat
+* Conversation history
+* Context injection
+* Session persistence
+* Session restoration
+* Chat template support
+* Configurable sampling
+
+---
+
+## Roadmap
+
+Planned features:
+
+* Automatic context overflow handling
+* Embeddings support
+* Local RAG
+* Tool calling
+* Streaming generation
+* HTTP API
+* Multi-session management
+* Semantic memory
+
+---
+
+## Requirements
+
+* C++17 or newer
 * llama.cpp
-* Modelo GGUF compatible
+* GGUF compatible model
 
 ---
 
-## Objetivos del Proyecto
+## Build
 
-Sigma LLM busca proporcionar:
+Example:
 
-* Una API simple para integrar LLMs locales.
-* Persistencia completa de sesiones.
-* Carga eficiente de conocimiento contextual.
-* Base para asistentes empresariales offline.
-* Integración sencilla con aplicaciones C++.
-
----
-
-## Estado Actual
-
-Implementado:
-
-* Carga de modelos GGUF
-* Chat interactivo
-* Historial de mensajes
-* Persistencia de sesiones
-* Restauración de contexto
-* Context Injection
-* Soporte para chat templates
-
-Próximamente:
-
-* Gestión automática de contexto lleno
-* Embeddings
-* RAG local
-* Herramientas (Tools)
-* Streaming de tokens
-* API HTTP opcional
+```bash
+g++ src/context_forge.cpp example/main.cpp \
+    -I llama.cpp/include \
+    -L llama.cpp/build/bin \
+    -lllama \
+    -o example
+```
 
 ---
 
-## Licencia
+## Philosophy
 
-GPL v3
+Context Forge focuses on a simple idea:
 
-Este proyecto utiliza llama.cpp como dependencia externa. Consulta las licencias correspondientes antes de distribuir binarios o versiones modificadas.
+> Local LLMs should remember what they have already learned.
+
+By combining session persistence and context management, Context Forge provides a foundation for building assistants, chatbots, and AI-powered applications that can continue working across multiple executions.
+
+---
+
+## License
+
+GPL-3.0
