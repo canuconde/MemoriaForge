@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     //
     // messages_meta.txt:
     //     Metadatos de mensajes almacenados
-    llm.save_state("state.bin","messages_meta.txt");
+    llm.save_state("state.bin");
 
     std::cout << "Context saved successfully."<< std::endl;
 

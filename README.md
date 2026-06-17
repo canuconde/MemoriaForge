@@ -7,6 +7,15 @@ The goal is simple: load a model, inject context, save the state, and restore it
 This is especially useful for applications that work with large manuals, documentation, knowledge bases, or long conversations.
 
 ## Quick Example
+```cpp
+     MemoriaForge::LLMSession llm("models/qwen.gguf");
+
+    llm.context_injector("MemoriaForge is a C++ library built on top of llama.cpp.");
+    
+    llm.save_state("manual_session");
+```
+
+And later...
 
 ```cpp
 #include "MemoriaForge.h"
@@ -15,13 +24,14 @@ int main() {
 
     MemoriaForge::LLMSession llm("models/qwen.gguf");
 
-    llm.context_injector("MemoriaForge is a C++ library built on top of llama.cpp.");
+    llm.load_state("manual_session");
 
     std::cout << llm.chat("What is MemoriaForge?") << std::endl;
 
     return 0;
 }
 ```
+
 
 ---
 
@@ -66,9 +76,12 @@ Saved data includes:
 Load external text directly into the model context.
 
 ```cpp
-std::string manual = ReadFile("manual.txt");
+std::ifstream file(Manual.txt);
+std::stringstream buffer << file.rdbuf();
 
-llm.context_injector(manual);
+const std::string content = buffer.str();
+
+llm.context_injector(content);
 ```
 
 Once injected, the context can be saved and restored later.
@@ -78,9 +91,7 @@ Once injected, the context can be saved and restored later.
 ### Simple Chat Interface
 
 ```cpp
-std::string response = llm.chat(
-    "How do I create a customer account?"
-);
+std::string response = llm.chat("How do I create a customer account?");
 ```
 
 No manual tokenization.
@@ -150,6 +161,7 @@ Generated binaries:
 ```text
 build/SimpleChat
 build/FileToContext
+build/PersistentChat
 ```
 
 Clean build artifacts:
@@ -167,7 +179,7 @@ make clean
 Starts an interactive chat session.
 
 ```bash
-./build/SimpleChat <Path to model.gguf>
+./build/PersitentChat <Path to model.gguf>
 ```
 
 This example demonstrates:
@@ -202,9 +214,7 @@ This example demonstrates:
 ```cpp
 #include "MemoriaForge.h"
 
-MemoriaForge::LLMSession llm(
-    "models/model.gguf"
-);
+MemoriaForge::LLMSession llm("models/model.gguf");
 ```
 
 ---
@@ -212,8 +222,7 @@ MemoriaForge::LLMSession llm(
 ### Chat
 
 ```cpp
-std::string response =
-    llm.chat("Hello!");
+std::string response = llm.chat("Hello!");
 ```
 
 ---
@@ -221,8 +230,7 @@ std::string response =
 ### Inject Context
 
 ```cpp
-std::string text =
-    ReadFile("manual.txt");
+std::string text = ReadFile("manual.txt");
 
 llm.context_injector(text);
 ```

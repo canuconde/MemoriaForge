@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
     MemoriaForge::LLMSession llm(model_path, 8192, 99);
     //Cargamos el estado
-    llm.load_state("state.bin", "messages_meta.txt");
+    llm.load_state("state.bin");
 
     //Iniciamos el chat
     while (true) {
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Guardamos el estado
-    llm.save_state("state.bin", "messages_meta.txt");
+    llm.save_state("state.bin");
 
     return 0;
 }

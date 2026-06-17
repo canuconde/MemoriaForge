@@ -20,10 +20,10 @@ public:
     ~LLMSession();
 
     bool load_state(const std::string& state_bin,
-                    const std::string& messages_txt);
+                    const std::string& messages_txt = "chat_log.txt");
 
     void save_state(const std::string& state_bin,
-                    const std::string& messages_txt);
+                    const std::string& messages_txt = "chat_log.txt");
 
     std::string chat(const std::string& user_input);
 

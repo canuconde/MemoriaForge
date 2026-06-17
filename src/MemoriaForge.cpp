@@ -58,9 +58,9 @@ void LLMSession::init_sampler() {
 
     smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
 
-    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.02f, 1));
-
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.5f));
+
+    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.02f, 1));
 
     llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 }
