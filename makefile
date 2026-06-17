@@ -1,5 +1,6 @@
 CXX = g++
-CXXFLAGS = -Ilibs/llama.cpp/include \
+CXXFLAGS = -Iinclude \
+	-Ilibs/llama.cpp/include \
            -Ilibs/llama.cpp/ggml/include
 
 LDFLAGS = -Llibs/llama.cpp/build/src \
@@ -7,15 +8,15 @@ LDFLAGS = -Llibs/llama.cpp/build/src \
 
 LIBS = -lllama -lggml -lggml-base -lggml-cpu -lgomp
 
-all: main leerarchivo
+all: SimpleChat FileToContext
 
-main:
-	$(CXX) src/sigma_llm.cpp src/Main.cpp \
-	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o main
+SimpleChat:
+	$(CXX) src/MemoriaForge.cpp examples/SimpleChat.cpp \
+	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/SimpleChat
 
-leerarchivo:
-	$(CXX) src/sigma_llm.cpp src/LeerArchivo.cpp \
-	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o test
+FileToContext:
+	$(CXX) src/MemoriaForge.cpp examples/FileToContext.cpp \
+	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/FileToContext
 
 clean:
-	rm -f main test
+	rm -rf build/*
