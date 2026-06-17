@@ -108,6 +108,13 @@ bool LLMSession::load_state(const std::string& state_bin, const std::string& mes
             // Usamos strdup para respetar la gestión de memoria dinámica de tu código original
             messages.push_back({strdup(role.c_str()), strdup(content.c_str())});
 
+            // Mostrar en consola los mensajes recuperados para que el usuario vea el historial
+            if (role == "user") {
+                printf("\033[32m> \033[0m%s\n", content.c_str());
+            } else if (role == "assistant") {
+                printf("\033[33m%s\n\033[0m", content.c_str());
+            }
+
             role.clear();
             content.clear();
             reading = false;
@@ -146,7 +153,7 @@ void LLMSession::context_injector(const std::string& prompt) {
 
         llama_batch batch = llama_batch_get_one(tokens.data(), tokens.size());
 
-        //OLO PREFILL (NO GENERACIÓN)
+        //SOLO PREFILL (NO GENERACIÓN)
         llama_decode(ctx, batch);
 
 }
@@ -162,23 +169,11 @@ std::string LLMSession::generate(const std::string& prompt) {
     bool first = llama_memory_seq_pos_max(
         llama_get_memory(ctx), 0) == -1;
 
-    int n = -llama_tokenize(vocab,
-                            prompt.c_str(),
-                            prompt.size(),
-                            nullptr,
-                            0,
-                            first,
-                            true);
+    int n = -llama_tokenize(vocab,prompt.c_str(),prompt.size(),nullptr,0,first,true);
 
     std::vector<llama_token> tokens(n);
 
-    llama_tokenize(vocab,
-                   prompt.c_str(),
-                   prompt.size(),
-                   tokens.data(),
-                   tokens.size(),
-                   first,
-                   true);
+    llama_tokenize(vocab,prompt.c_str(),prompt.size(),tokens.data(),tokens.size(),first,true);
 
     llama_batch batch = llama_batch_get_one(tokens.data(), tokens.size());
 
@@ -191,9 +186,7 @@ std::string LLMSession::generate(const std::string& prompt) {
         if (llama_vocab_is_eog(vocab, tok)) break;
 
         char buf[256];
-        int len = llama_token_to_piece(vocab, tok,
-                                      buf, sizeof(buf),
-                                      0, true);
+        int len = llama_token_to_piece(vocab, tok,buf, sizeof(buf),0, true);
 
         std::string piece(buf, len);
 
@@ -215,30 +208,15 @@ std::string LLMSession::chat(const std::string& user_input) {
 
 // add the user input to the message list and format it
         messages.push_back({"user", strdup(user_input.c_str())});
-    int new_len = llama_chat_apply_template(
-        tmpl,
-        messages.data(),
-        messages.size(),
-        true,
-        formatted.data(),
-        formatted.size()
-    );
+    int new_len = llama_chat_apply_template(tmpl,messages.data(),messages.size(),true,formatted.data(),formatted.size());
 
     if (new_len > (int)formatted.size()) {
         formatted.resize(new_len);
 
-        new_len = llama_chat_apply_template(
-            tmpl,
-            messages.data(),
-            messages.size(),
-            true,
-            formatted.data(),
-            formatted.size()
-        );
+        new_len = llama_chat_apply_template(tmpl,messages.data(),messages.size(),true,formatted.data(),formatted.size());
     }
 
-    std::string prompt(formatted.begin() + prev_len,
-                       formatted.begin() + new_len);
+    std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
 
     std::cout << "\033[33m";
     std::string response = generate(prompt);
@@ -249,14 +227,7 @@ std::string LLMSession::chat(const std::string& user_input) {
     // add the response to the messages
     messages.push_back({"assistant", strdup(response.c_str())});
 
-    prev_len = llama_chat_apply_template(
-        tmpl,
-        messages.data(),
-        messages.size(),
-        false,
-        nullptr,
-        0
-    );
+    prev_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), false, nullptr,0);
 
     return response;
 }

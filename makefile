@@ -8,11 +8,16 @@ LDFLAGS = -Llibs/llama.cpp/build/src \
 
 LIBS = -lllama -lggml -lggml-base -lggml-cpu -lgomp
 
-all: SimpleChat FileToContext
+all: SimpleChat FileToContext PersistentChat
 
 SimpleChat:
 	$(CXX) src/MemoriaForge.cpp examples/SimpleChat.cpp \
 	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/SimpleChat
+
+PersistentChat:
+	$(CXX) src/MemoriaForge.cpp examples/PersistentChat.cpp \
+	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/PersistentChat
+
 
 FileToContext:
 	$(CXX) src/MemoriaForge.cpp examples/FileToContext.cpp \

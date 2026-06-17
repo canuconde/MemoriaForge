@@ -12,7 +12,9 @@ int main(int argc, char* argv[]) {
     }
     const std::string model_path = argv[1];
 
-    MemoriaForge::LLMSession llm(model_path);
+    MemoriaForge::LLMSession llm(model_path, 8192, 99);
+    //Cargamos el estado
+    llm.load_state("state.bin", "messages_meta.txt");
 
     //Iniciamos el chat
     while (true) {
@@ -24,6 +26,9 @@ int main(int argc, char* argv[]) {
 
         llm.chat(input);
     }
+
+    //Guardamos el estado
+    llm.save_state("state.bin", "messages_meta.txt");
 
     return 0;
 }
