@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "ContextForge.h"
+#include "MemoriaForge.h"
 
 int main(int argc, char* argv[]) {
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     // - Ruta del modelo
     // - Tamaño de contexto
     // - Seed para generación reproducible
-    sigma::LLMSession llm(model_path,8192,99);
+    MemoriaForge::LLMSession llm(model_path,8192,99);
 
     // Inyectar el contenido del archivo
     // dentro del contexto del modelo

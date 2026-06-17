@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace CForge {
+namespace MemoriaForge {
 
 struct ChatMessage {
     std::string role;

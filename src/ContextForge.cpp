@@ -1,9 +1,9 @@
-#include "sigma_llm.h"
+#include "MemoriaForge.h"
 #include <fstream>
 #include <iostream>
 #include <cstring>
 
-namespace CForge {
+namespace MemoriaForge {
 
 /*
  * Constructor
