@@ -1,27 +1,49 @@
 # MemoriaForge
 
-MemoriaForge is a lightweight C++ wrapper around llama.cpp focused on persistent sessions and context caching for local GGUF models.
+A lightweight C++ wrapper around llama.cpp that adds persistent sessions and context caching for local GGUF models.
 
-The goal is simple: load a model, inject context, save the state, and restore it later without reprocessing everything from scratch.
+Instead of rebuilding large contexts every time an application starts, MemoriaForge allows applications to save and restore processed model state, reducing startup time for documentation assistants, knowledge bases, and long-running conversations.
 
-This is especially useful for applications that work with large manuals, documentation, knowledge bases, or long conversations.
+---
+
+## Features
+
+* Persistent sessions
+* Context caching
+* GGUF model support
+* Simple chat interface
+* Context injection
+* Session restoration
+* Built on top of llama.cpp
+* Lightweight C++ API
+
+---
 
 ## Quick Example
-```cpp
-     MemoriaForge::LLMSession llm("models/qwen.gguf");
 
-    llm.context_injector("MemoriaForge is a C++ library built on top of llama.cpp.");
-    
-    llm.save_state("manual_session");
-```
-
-And later...
+Load a model, inject context, and save the processed state:
 
 ```cpp
 #include "MemoriaForge.h"
 
 int main() {
+    MemoriaForge::LLMSession llm("models/qwen.gguf");
 
+    llm.context_injector("MemoriaForge is a lightweight C++ wrapper around llama.cpp.");
+
+    llm.save_state("manual_session");
+
+    return 0;
+}
+```
+
+Later, restore the session instantly:
+
+```cpp
+#include "MemoriaForge.h"
+#include <iostream>
+
+int main() {
     MemoriaForge::LLMSession llm("models/qwen.gguf");
 
     llm.load_state("manual_session");
@@ -32,18 +54,19 @@ int main() {
 }
 ```
 
-
 ---
 
 ## Why MemoriaForge?
 
-A common issue when building local AI applications is startup time.
+A common problem when building local AI applications is startup time.
 
-Every time an application starts, large documents must be tokenized and processed again before the model can answer questions about them.
+Every time an application starts, large documents must be loaded, tokenized, and processed before the model can answer questions.
 
-MemoriaForge allows you to:
+For large manuals, documentation, or knowledge bases, this process can become expensive and repetitive.
 
-1. Load a document once.
+MemoriaForge allows applications to:
+
+1. Load information once.
 2. Inject it into the model context.
 3. Save the resulting model state.
 4. Restore it instantly later.
@@ -52,85 +75,25 @@ This avoids repeatedly processing the same information and significantly reduces
 
 ---
 
-## Features
+## Use Cases
 
-### Persistent Sessions
-
-Save and restore complete model sessions.
-
-```cpp
-llm.save_state("my_session");
-llm.load_state("my_session");
-```
-
-Saved data includes:
-
-- Model state
-- KV cache
-- Conversation history
-
----
-
-### Context Injection
-
-Load external text directly into the model context.
-
-```cpp
-std::ifstream file(Manual.txt);
-std::stringstream buffer << file.rdbuf();
-
-const std::string content = buffer.str();
-
-llm.context_injector(content);
-```
-
-Once injected, the context can be saved and restored later.
-
----
-
-### Simple Chat Interface
-
-```cpp
-std::string response = llm.chat("How do I create a customer account?");
-```
-
-No manual tokenization.
-
-No prompt formatting.
-
-No sampler configuration.
-
-No direct llama.cpp API calls.
-
----
-
-## Project Structure
-
-```text
-MemoriaForge/
-├── build/
-├── examples/
-│   ├── SimpleChat.cpp
-│   └── FileToContext.cpp
-├── include/
-│   └── MemoriaForge.h
-├── src/
-│   └── MemoriaForge.cpp
-├── libs/
-│   └── llama.cpp/
-├── models/
-├── makefile
-└── README.md
-```
+* Documentation assistants
+* Technical manuals
+* Offline AI applications
+* Knowledge base systems
+* Persistent local chatbots
+* Customer support tools
+* Project-specific AI assistants
+* Long-running conversations
 
 ---
 
 ## Requirements
 
-- C++17
-- llama.cpp
-- GGUF model
-- Linux
+* C++17
+* Linux
+* GGUF model
+* llama.cpp
 
 ---
 
@@ -172,60 +135,78 @@ make clean
 
 ---
 
-## Examples
+## Project Structure
 
-### SimpleChat
-
-Starts an interactive chat session.
-
-```bash
-./build/PersitentChat <Path to model.gguf>
+```text
+MemoriaForge/
+├── build/
+├── examples/
+│   ├── SimpleChat.cpp
+│   ├── FileToContext.cpp
+│   └── PersistentChat.cpp
+├── include/
+│   └── MemoriaForge.h
+├── src/
+│   └── MemoriaForge.cpp
+├── libs/
+│   └── llama.cpp/
+├── models/
+├── FAQ.md
+├── makefile
+└── README.md
 ```
 
-This example demonstrates:
+---
 
-- Model loading
-- Interactive conversations
-- Session persistence
+## Examples
+
+### PersistentChat
+
+Starts an interactive chat session with persistent memory.
+
+```bash
+./build/PersistentChat <path_to_model.gguf>
+```
+
+Demonstrates:
+
+* Model loading
+* Interactive conversations
+* Saving sessions
+* Restoring sessions
 
 ---
 
 ### FileToContext
 
-Loads a text file into the model context and saves the resulting state.
+Loads a text file into the model context and stores the resulting session.
 
 ```bash
-./build/FileToContext <Path to model.gguf> <Path to text file>
+./build/FileToContext <path_to_model.gguf> <path_to_text_file>
 ```
 
-This example demonstrates:
+Demonstrates:
 
-- Reading external files
-- Context injection
-- State caching
-- State restoration
+* Reading files
+* Context injection
+* Context caching
+* Session restoration
 
 ---
 
-## Basic Usage
+## API Reference
 
 ### Create a Session
 
 ```cpp
-#include "MemoriaForge.h"
-
 MemoriaForge::LLMSession llm("models/model.gguf");
 ```
-
----
 
 ### Chat
 
 ```cpp
 std::string response = llm.chat("Hello!");
 ```
-
----
 
 ### Inject Context
 
@@ -235,15 +216,11 @@ std::string text = ReadFile("manual.txt");
 llm.context_injector(text);
 ```
 
----
-
 ### Save State
 
 ```cpp
 llm.save_state("manual_session");
 ```
-
----
 
 ### Load State
 
@@ -258,30 +235,66 @@ llm.load_state("manual_session");
 Internally, MemoriaForge uses llama.cpp to:
 
 1. Load a GGUF model.
-2. Apply the model's chat template.
+2. Apply the model chat template.
 3. Process user messages.
-4. Inject external context into the KV cache.
-5. Save model state to disk.
+4. Inject external context.
+5. Save model state.
 6. Restore previous sessions.
 
 This allows applications to resume work immediately without rebuilding context every time they start.
 
 ---
 
-## Current Limitations
+## Architecture
 
-- Single session per instance
-- Manual session management
-- No automatic context overflow handling
-- No embeddings support
-- No vector database integration
-- No RAG pipeline
+```text
+Application
+      │
+      ▼
+MemoriaForge
+      │
+      ▼
+LLMSession
+      │
+      ▼
+llama.cpp
+      │
+      ▼
+GGUF Model
+      │
+      ▼
+KV Cache
+      │
+ ┌────┴────┐
+ ▼         ▼
+chat()  save_state()
+```
 
 ---
 
+## Current Limitations
+
+* Single session per instance
+* Manual session management
+* No automatic context overflow handling
+* No embeddings support
+* No vector database integration
+* No RAG pipeline
+
+---
+
+## FAQ
+
+For common questions, compatibility information, and implementation details, see:
+
+```text
+FAQ.md
+```
+
+---
 
 ## License
 
 GPL-3.0
 
-This project depends on llama.cpp, which is licensed under the MIT License.
+MemoriaForge depends on llama.cpp, which is distributed under the MIT License.

@@ -206,8 +206,8 @@ std::string LLMSession::generate(const std::string& prompt) {
 
 std::string LLMSession::chat(const std::string& user_input) {
 
-// add the user input to the message list and format it
-        messages.push_back({"user", strdup(user_input.c_str())});
+    // add the user input to the message list and format it
+    messages.push_back({"user", strdup(user_input.c_str())});
     int new_len = llama_chat_apply_template(tmpl,messages.data(),messages.size(),true,formatted.data(),formatted.size());
 
     if (new_len > (int)formatted.size()) {
