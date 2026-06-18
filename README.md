@@ -229,6 +229,22 @@ llm.save_state("manual_session");
 ```cpp
 llm.load_state("manual_session");
 ```
+## Generation Parameters (NEW)
+
+You can now configure the model’s sampling parameters directly from the wrapper.
+
+```cpp
+llm.set_generation_params(
+                  0.02f,      //min_p
+                  0.5f,       //temperature
+                  1234        //seed
+                  );
+```
+This allows you to control:
+
+* min_p: minimum probability filtering
+* temperature: model creativity
+* seed: response reproducibility
 
 ---
 
