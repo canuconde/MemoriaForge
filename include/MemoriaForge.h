@@ -28,6 +28,9 @@ public:
     std::string chat(const std::string& user_input);
 
     void context_injector(const std::string& prompt);
+
+    void set_sampling_params(float min_p, float temp, uint32_t seed);
+
 private:
     llama_model* model = nullptr;
     llama_context* ctx = nullptr;
@@ -42,6 +45,10 @@ private:
 
     std::string generate(const std::string& prompt);
     void init_sampler();
+
+    float temp = 0.5f;
+    float min_p = 0.2f;
+    uint32_t seed = LLAMA_DEFAULT_SEED;
 };
 
 }

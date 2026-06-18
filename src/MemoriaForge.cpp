@@ -59,13 +59,34 @@ void LLMSession::init_sampler() {
 
     smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
 
-    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.5f));
+    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(min_p, 1));
 
-    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.02f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_temp(temp));
 
-    llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
+    llama_sampler_chain_add(smpl, llama_sampler_init_dist(seed));
 }
 
+void LLMSession::set_sampling_params(float mp, float t, uint32_t s) {
+    temp = t;
+    min_p = mp;
+    seed = s;
+
+    //Tenemos que recrear el sampler si ya fue creado
+    if (smpl) { llama_sampler_free(smpl);
+        smpl = nullptr;
+    }
+
+    smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
+
+    //Min-p
+    llama_sampler_chain_add(smpl,llama_sampler_init_min_p(min_p, 1));
+
+    //Temperatura
+    llama_sampler_chain_add(smpl,llama_sampler_init_temp(temp));
+
+    //Semilla
+    llama_sampler_chain_add(smpl,llama_sampler_init_dist(seed));
+}
 
 void LLMSession::save_state(const std::string& state_bin, const std::string& messages_txt) {
 
@@ -111,7 +132,7 @@ bool LLMSession::load_state(const std::string& state_bin, const std::string& mes
 
             // Mostrar en consola los mensajes recuperados para que el usuario vea el historial
             if (role == "user") {
-                printf("\033[32m> \033[0m%s\n", content.c_str());
+                printf("\033[32m> \033[0m%s\n", content.c_str()); // <-- Esto no se ve bien en windows
             } else if (role == "assistant") {
                 printf("\033[33m%s\n\033[0m", content.c_str());
             }

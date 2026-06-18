@@ -13,6 +13,9 @@ int main(int argc, char* argv[]) {
     const std::string model_path = argv[1];
 
     MemoriaForge::LLMSession llm(model_path, 8192, 99);
+
+    llm.set_sampling_params(0.02f, 0.9f, 1234);
+
     //Cargamos el estado
     llm.load_state("state.bin");
 
