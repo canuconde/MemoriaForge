@@ -50,6 +50,7 @@ LLMSession::~LLMSession() {
 
     for (auto &m : messages) {
         free((void*)m.content);
+        free((void*)m.role);
     }
 }
 
