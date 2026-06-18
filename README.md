@@ -4,6 +4,8 @@ A lightweight C++ wrapper around llama.cpp that adds persistent sessions and con
 
 Instead of rebuilding large contexts every time an application starts, MemoriaForge allows applications to save and restore processed model state, reducing startup time for documentation assistants, knowledge bases, and long-running conversations.
 
+![MemoriaForge_logo](https://github.com/canuconde/MemoriaForge/blob/main/res/banner_1280xshort.jpg?raw=true)
+
 ---
 
 ## Features
