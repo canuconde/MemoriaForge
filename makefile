@@ -8,7 +8,23 @@ LDFLAGS = -Llibs/llama.cpp/build/src \
 
 LIBS = -lllama -lggml -lggml-base -lggml-cpu -lgomp
 
+PREFIX ?= /usr/local
+
 all: SimpleChat FileToContext PersistentChat
+
+shared:
+	mkdir -p build
+	$(CXX) -shared src/MemoriaForge.cpp \
+	$(CXXFLAGS) $(LDFLAGS) $(LIBS) \
+	-o build/libMemoriaForge.so -fPIC
+
+shared-windows:
+	mkdir -p build
+
+	$(CXX) -shared src/MemoriaForge.cpp \
+	$(CXXFLAGS) $(LDFLAGS) $(LIBS) \
+	-Wl,--out-implib,build/libMemoriaForge.a \
+	-o build/MemoriaForge.dll
 
 SimpleChat:
 	$(CXX) src/MemoriaForge.cpp examples/SimpleChat.cpp \
@@ -24,4 +40,18 @@ FileToContext:
 	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/FileToContext
 
 clean:
-	rm -rf build/*
+	rm -rf build
+
+install: shared
+	mkdir -p $(PREFIX)/include
+	mkdir -p $(PREFIX)/lib
+
+	cp include/MemoriaForge.h $(PREFIX)/include/
+	cp build/libMemoriaForge.so $(PREFIX)/lib/
+
+	ldconfig
+uninstall:
+	rm -f $(PREFIX)/include/MemoriaForge.h
+	rm -f $(PREFIX)/lib/libMemoriaForge.so
+
+	ldconfig

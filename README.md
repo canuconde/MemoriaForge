@@ -1,6 +1,6 @@
 # MemoriaForge
 
-A lightweight C++ wrapper around llama.cpp that adds persistent sessions and context caching for local GGUF models.
+MemoriaForge is a lightweight C++ wrapper for llama.cpp focused on simplicity and state persistence.
 
 Instead of rebuilding large contexts every time an application starts, MemoriaForge allows applications to save and restore processed model state, reducing startup time for documentation assistants, knowledge bases, and long-running conversations.
 
@@ -9,19 +9,45 @@ Instead of rebuilding large contexts every time an application starts, MemoriaFo
 ---
 
 ## Features
-
-* Persistent sessions
-* Context caching
-* GGUF model support
-* Simple chat interface
+* Simple chat API
+* Stateful conversations
+* Save and load session state
 * Context injection
-* Session restoration
-* Built on top of llama.cpp
-* Lightweight C++ API
+* Minimal llama.cpp boilerplate
 
 ---
 
 ## Quick Example
+
+### Minimal chat
+
+Simple implementation in C++
+
+```cpp
+#include "MemoriaForge.h"
+int main() {
+    
+     MemoriaForge::LLMSession llm("model_path/model.gguf");
+    
+    while (true) {
+        std::string input;
+        std::cout << "> ";
+        std::getline(std::cin, input);
+        if (input.empty()) break;
+        llm.chat(input);
+    }
+    
+return 0;
+}
+```
+No tokenization.
+No samplers.
+No chat templates.
+No context management.
+
+Just load a model and start chatting.
+
+### Save and Load
 
 Load a model, inject context, and save the processed state:
 
@@ -135,6 +161,101 @@ Clean build artifacts:
 make clean
 ```
 
+## Shared Library
+
+MemoriaForge can be built as a shared library for Linux or Windows.
+
+### Linux
+
+Build the shared library:
+
+```bash
+make shared
+```
+
+Generated file:
+
+```text
+build/libMemoriaForge.so
+```
+
+Install system-wide:
+
+```bash
+sudo make install
+```
+
+Installed files:
+
+```text
+/usr/local/include/MemoriaForge.h
+/usr/local/lib/libMemoriaForge.so
+```
+
+Remove the installation:
+
+```bash
+sudo make uninstall
+```
+
+---
+
+### Windows (MinGW)
+
+Build the DLL and import library:
+
+```bash
+mingw32-make shared-windows
+```
+
+Generated files:
+
+```text
+build/MemoriaForge.dll
+build/libMemoriaForge.a
+```
+
+The DLL contains the implementation, while the `.a` file is used by the linker when building applications against MemoriaForge.
+
+---
+
+### Using MemoriaForge
+
+```cpp
+#include <MemoriaForge.h>
+
+int main() {
+
+    MemoriaForge::LLMSession llm(
+        "models/model.gguf"
+    );
+
+    llm.chat("Hello!");
+
+    return 0;
+}
+```
+
+Example compilation:
+
+```bash
+g++ app.cpp -lMemoriaForge -o app
+```
+
+---
+
+### Notes
+
+* llama.cpp must be built before compiling MemoriaForge.
+* Static and shared linking are both supported.
+* On Linux, run `sudo ldconfig` after installation if the library is not detected automatically.
+
+Before building a shared version of MemoriaForge, llama.cpp must be compiled with position-independent code:
+
+```bash
+cmake -B build -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+```
+
 ---
 
 ## Project Structure
@@ -234,7 +355,7 @@ llm.load_state("manual_session");
 You can now configure the model’s sampling parameters directly from the wrapper.
 
 ```cpp
-llm.set_generation_params(
+llm.set_samplings_params(
                   0.02f,      //min_p
                   0.5f,       //temperature
                   1234        //seed
