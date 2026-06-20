@@ -21,8 +21,8 @@ namespace MemoriaForge {
 
             int prev_len = 0;
 
-            float temp = 0.5f;
-            float min_p = 0.2f;
+            float temp = 0.7f;
+            float min_p = 0.05f;
             uint32_t seed = LLAMA_DEFAULT_SEED;
     };
     /*
@@ -70,7 +70,7 @@ namespace MemoriaForge {
         if (state->model) llama_model_free(state->model);
 
         //ESTO fue reemplazado, no necesitamos hacer free
-        //Creo. Verificar posbiles memory leaks
+        //Creo (?) Verificar posbiles memory leaks
         // for (auto &m : state->messages) {
         //     free((void*)m.content);
         //     free((void*)m.role);
@@ -82,9 +82,10 @@ namespace MemoriaForge {
 
         state->smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
 
-        llama_sampler_chain_add(state->smpl, llama_sampler_init_min_p(state->min_p, 1));
 
         llama_sampler_chain_add(state->smpl, llama_sampler_init_temp(state->temp));
+
+        llama_sampler_chain_add(state->smpl, llama_sampler_init_min_p(state->min_p, 1));
 
         llama_sampler_chain_add(state->smpl, llama_sampler_init_dist(state->seed));
     }
@@ -101,11 +102,11 @@ namespace MemoriaForge {
 
         state->smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
 
-        //Min-p
-        llama_sampler_chain_add(state->smpl,llama_sampler_init_min_p(state->min_p, 1));
-
         //Temperatura
         llama_sampler_chain_add(state->smpl,llama_sampler_init_temp(state->temp));
+
+        //Min-p
+        llama_sampler_chain_add(state->smpl,llama_sampler_init_min_p(state->min_p, 1));
 
         //Semilla
         llama_sampler_chain_add(state->smpl,llama_sampler_init_dist(state->seed));
@@ -253,6 +254,13 @@ namespace MemoriaForge {
 
         // add the user input to the message list and format it
         state->messages.push_back({"user", strdup(user_input.c_str())});
+
+        // Inyección manual: Forzamos al modelo a creer que ya terminó de pensar
+        // Al abrir el rol de asistente e inmediatamente cerrar el tag </think>,
+        // el modelo se ve obligado a continuar con la respuesta final.
+        // state->messages.push_back({"assistant", "</think>"});
+
+
         int new_len = llama_chat_apply_template(state->tmpl,state->messages.data(),state->messages.size(),true,state->formatted.data(),state->formatted.size());
 
         if (new_len > (int)state->formatted.size()) {
