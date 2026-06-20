@@ -27,15 +27,21 @@ shared-windows:
 	-o build/MemoriaForge.dll
 
 SimpleChat:
+	mkdir -p build
+
 	$(CXX) src/MemoriaForge.cpp examples/SimpleChat.cpp \
 	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/SimpleChat
 
 PersistentChat:
+	mkdir -p build
+
 	$(CXX) src/MemoriaForge.cpp examples/PersistentChat.cpp \
 	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/PersistentChat
 
 
 FileToContext:
+	mkdir -p build
+
 	$(CXX) src/MemoriaForge.cpp examples/FileToContext.cpp \
 	$(CXXFLAGS) $(LDFLAGS) $(LIBS) -o build/FileToContext
 

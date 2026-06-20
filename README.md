@@ -4,7 +4,7 @@ MemoriaForge is a lightweight C++ wrapper for llama.cpp focused on simplicity an
 
 Instead of rebuilding large contexts every time an application starts, MemoriaForge allows applications to save and restore processed model state, reducing startup time for documentation assistants, knowledge bases, and long-running conversations.
 
-![MemoriaForge_logo](https://github.com/canuconde/MemoriaForge/blob/main/res/banner_1280xshort.jpg?raw=true)
+![MemoriaForge_logo](https://github.com/canuconde/MemoriaForge/blob/main/media/banner_1280xshort.jpg?raw=true)
 
 ---
 
@@ -40,10 +40,10 @@ int main() {
 return 0;
 }
 ```
-No tokenization.
-No samplers.
-No chat templates.
-No context management.
+* No tokenization.
+* No samplers.
+* No chat templates.
+* No context management.
 
 Just load a model and start chatting.
 
