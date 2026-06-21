@@ -244,6 +244,68 @@ g++ app.cpp -lMemoriaForge -o app
 
 ---
 
+### Binaries
+
+You can also use these binaries:
+
+* [Windows64](https://github.com/canuconde/MemoriaForge/releases/download/v1.0.0/MemoriaForge.Win64.zip)
+* [Windows32](https://github.com/canuconde/MemoriaForge/releases/download/v1.0.0/MemoriaForge.Win32.zip)
+* [Linux64](https://github.com/canuconde/MemoriaForge/releases/download/v1.0.0/MemoriaForge.Linux64.tar.gz)
+* [Debian pkg](https://github.com/canuconde/MemoriaForge/releases/download/v1.0.0/memoriaforge_20260620-1_amd64.deb)
+
+#### Package Contents
+
+```text
+include/
+    MemoriaForge.a
+
+lib/
+    MemoriaForge.dll
+    MemoriaForge.a
+
+examples/
+    SimpleChat.cpp
+    PersistentChat.cpp
+    FileToContext.cpp
+
+LICENSE
+AUTHORS
+README.md
+```
+#### Requirements
+
+* C++17 compatible compiler
+* Windows 32-bit or 64-bit
+* GGUF model
+
+#### Creating a Session
+
+```cpp
+#include <iostream>
+#include "MemoriaForge.h"
+
+int main() {
+
+    MemoriaForge::LLMSession ai("Qwen3-0.6B-Q8_0.gguf");
+
+    std::cout << ai.chat("Hello!") << std::endl;
+
+    return 0;
+}
+```
+
+#### Compilation Example (MinGW)
+
+```bash
+g++ main.cpp -Iinclude -Llib -lMemoriaForge -o app.exe
+```
+
+#### Runtime
+
+Place `MemoriaForge.dll` in the same directory as your executable or somewhere accessible through the system PATH.
+
+---
+
 ### Notes
 
 * llama.cpp must be built before compiling MemoriaForge.
