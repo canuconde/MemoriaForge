@@ -499,3 +499,17 @@ FAQ.md
 GPL-3.0
 
 MemoriaForge depends on llama.cpp, which is distributed under the MIT License.
+
+---
+
+# Support MemoriaForge
+
+MemoriaForge is developed and maintained in my free time.
+
+If this library saved you time, helped your project, or you simply want to support independent open-source software, consider making a small donation.
+
+Every contribution helps improve the project and motivates future development.
+
+Thank you for your support!
+
+☕ [Donate](https://www.paypal.com/donate/?hosted_button_id=BW2GNHFEQNLW4)
